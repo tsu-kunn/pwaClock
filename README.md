@@ -12,3 +12,10 @@ $ npx create-react-app pwaclock --template cra-template-pwa
 
 ## 公開ページ
 [pwaclock](https://tsu-kunn.github.io/pwaclock/)
+
+## 画像
+- amiya.png
+  - https://arknights.wikiru.jp/index.php?%A5%A2%A1%BC%A5%DF%A5%E4
+- W_05.png
+  - https://arknights.wikiru.jp/index.php?W
+
