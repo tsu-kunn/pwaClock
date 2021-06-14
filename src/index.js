@@ -7,6 +7,9 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import pic1 from "./image/amiya.png";
 import pic2 from "./image/W_05.png";
 
+import message from "./message.json";
+import reactmsg from "./reactmsg.json";
+
 
 function Clock(props) {
     const [date, setDate] = useState(new Date());
@@ -91,18 +94,11 @@ function PictureChange(props) {
     const [timerID, setTimerID] = useState(null);
 
     function dialogue() {
-        const msgList = [
-            "なに？",
-            "怒るよ",
-            "えへへ",
-            "ひゃあ"
-        ];
-
         if (timerID != null) {
             clearInterval(timerID);
         }
 
-        props.setMsg(msgList[Math.floor(Math.random() * msgList.length)]);
+        props.setMsg(reactmsg.list[Math.floor(Math.random() * reactmsg.list.length)]);
         setTimerID(setTimeout(() => { props.setMsg(null); }, 3000));
     }
 
@@ -122,15 +118,11 @@ function PictureChange(props) {
 
 function Message(props) {
     const [msg, setMsg] = useState(null);
-    const msgList = [
-        "おはよう",
-        "こんばんは",
-        "お疲れ様",
-        "おやすみなさい"
-    ];
 
     function selectMsg() {
         if (msg === null) {
+            const date = new Date();
+            const msgList = date.getHours() >= 12 ? message.PM : message.AM;
             setMsg(msgList[Math.floor(Math.random() * msgList.length)]);
         } else {
             setMsg(null);
