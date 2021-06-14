@@ -28,8 +28,7 @@ body {
   position: absolute;
   top: 25%;
   left: 2%;
-  white-space: nowrap;
-  text-align: center;
+  /* white-space: nowrap; */
 }
 
 .date {
@@ -58,8 +57,10 @@ body {
 
 .message {
   /* background: rgba(222, 219, 202, 0.85); */
-  border-radius: 15%;
+  border-radius: 10%;
   padding: 10px 5px;
+  width: 100px;
+  text-align: center;
 }
 
 .react-message {
@@ -67,6 +68,7 @@ body {
   border-radius: 15%;
   padding: 10px 5px;
   margin-top: 15%;
+  display:inline-block;
 }
 
 img.chara-img {
