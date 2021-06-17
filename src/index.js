@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -73,16 +73,18 @@ function Clock(props) {
 }
 
 function DateLabel(props) {
-    // let lblStr = "0000年00月00日〇曜日 00:00:00"
-    let lblStr = "----年--月--日―曜日 --:--:--"
+    // props.date が更新された場合のみ実行するように変更
+    const lblStr = useMemo(() => {
+        if (props.date != null) {
+            let opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            let localDate = new Intl.DateTimeFormat("ja-JP", opts).format(props.date);
+            let localTime = props.date.toLocaleTimeString("ja-JP");
 
-    if (props.date != null) {
-        let opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-        let localDate = new Intl.DateTimeFormat("ja-JP", opts).format(props.date);
-        let localTime = props.date.toLocaleTimeString("ja-JP");
-
-        lblStr = localDate + " " + localTime;
-    }
+            return (localDate + " " + localTime);
+        } else {
+            return ("----年--月--日―曜日 --:--:--");
+        }
+    }, [props.date]);
 
     return (
         <label>{lblStr}</label>
