@@ -31,6 +31,14 @@ body {
   /* white-space: nowrap; */
 }
 
+.app-button {
+  position: absolute;
+  top: 7%;
+  right: 2%;
+}
+
+
+/* 時計 */
 .date {
   font-size: 16px;
   margin-bottom: 2px;
@@ -81,6 +89,63 @@ img.chara-img {
   margin-top: 32%;
   margin-left: 5%;
 }
+
+
+/* トグルボタン */
+.app-button .item-frame {
+  margin: 0.25rem auto;
+}
+
+.app-button .text {
+  vertical-align: middle;
+}
+
+.app-button label {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.app-button .switch {
+  position: relative;
+}
+
+.app-button .switch:before, .app-button .switch:after {
+  content: '';
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.app-button .switch:before {
+  width: 2em;
+  height: 1em;
+  border: 2px solid #C4C9FF;
+  border-radius: 32px;
+  background: #999;
+}
+
+.app-button .switch:after {
+  position: relative;
+  width: 1em;
+  height: 1em;
+  background: #C4C9FF;
+  border-radius: 50%;
+  left: -2.2em;
+}
+
+.app-button input {
+  display: none;
+}
+
+.app-button input:checked ~ .switch:before {
+  background: #00b715;
+  border-color: #84ff92;
+}
+
+.app-button input:checked ~ .switch:after {
+  background: #84ff92;
+  left: -1.1em;
+}
+
 
 /* モバイル向け */
 @media (max-width: 600px) {
