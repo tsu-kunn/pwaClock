@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './App.css';
+import { useSelector, useDispatch } from "react-redux";
+import { Actions } from "./store/Actions";
 
 import pic1 from "./image/amiya.png";
 import pic2 from "./image/W_05.png";
@@ -10,6 +12,8 @@ import reactmsg from "./reactmsg.json";
 
 function Clock(props) {
     const [date, setDate] = useState(new Date());
+    const hour24 = useSelector((state) => state.hour24);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const timerID = setInterval(() => { setDate(new Date()); }, 1000);
@@ -20,7 +24,8 @@ function Clock(props) {
     }, []);
 
     function clickEvent() {
-        props.onClick(date);
+        dispatch(Actions.setDateHistory(date));
+        dispatch(Actions.changeImage());
     }
 
     // 時刻表示
@@ -34,7 +39,7 @@ function Clock(props) {
     let seconds = date.getSeconds();
     let ampm = null;
 
-    if (!props.hour24) {
+    if (!hour24) {
         ampm = hours >= 12 ? "PM" : "AM";
         hours = hours % 12;
     }
@@ -68,18 +73,20 @@ function Clock(props) {
 }
 
 function DateLabel(props) {
+    const date = useSelector((state) => state.dateHistory);
+
     // props.date が更新された場合のみ実行するように変更
     const lblStr = useMemo(() => {
-        if (props.date != null) {
+        if (date != null) {
             let opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            let localDate = new Intl.DateTimeFormat("ja-JP", opts).format(props.date);
-            let localTime = props.date.toLocaleTimeString("ja-JP");
+            let localDate = new Intl.DateTimeFormat("ja-JP", opts).format(date);
+            let localTime = date.toLocaleTimeString("ja-JP");
 
             return (localDate + " " + localTime);
         } else {
             return ("----年--月--日―曜日 --:--:--");
         }
-    }, [props.date]);
+    }, [date]);
 
     return (
         <label>{lblStr}</label>
@@ -89,24 +96,27 @@ function DateLabel(props) {
 // srcに配置した場合は import を使うのが一般的らしい
 function PictureChange(props) {
     const [timerID, setTimerID] = useState(null);
+    const imgFlg = useSelector((state) => state.imgFlg);
+    const msgFlg = useSelector((state) => state.msgFlg);
+    const dispatch = useDispatch();
 
     function dialogue() {
         if (timerID != null) {
             clearTimeout(timerID);
         }
 
-        if (props.msgFlg) {
-            props.setMsg(reactmsg.list[Math.floor(Math.random() * reactmsg.list.length)]);
-            setTimerID(setTimeout(() => { props.setMsg(null); }, 3000));
+        if (msgFlg) {
+            dispatch(Actions.setReactMsg(reactmsg.list[Math.floor(Math.random() * reactmsg.list.length)]));
+            setTimerID(setTimeout(() => { dispatch(Actions.setReactMsg(null)) }, 3000));
         } else {
-            props.setMsg(null);
+            dispatch(Actions.setReactMsg(null));
             setTimerID(null);
         }
     }
 
     // const pic1 = "/pict/amiya.png";
     // const pic2 = "/pict/W_05.png";
-    let picPath = props.flg ? pic1 : pic2;
+    let picPath = imgFlg ? pic1 : pic2;
 
     return (
         <img src={picPath} alt="絵" className="chara-img" onClick={dialogue} />
@@ -120,12 +130,14 @@ function PictureChange(props) {
 
 // トグルボタン
 function SettingButton(props) {
+    const dispatch = useDispatch();
+
     function changeMessage(e) {
-        props.chgMsgFlg(e.target.checked);
+        dispatch(Actions.setMsgFlg(e.target.checked));
     }
 
     function changeHoure(e) {
-        props.chg24Hour(e.target.checked);
+        dispatch(Actions.setHour24(e.target.checked));
     }
 
     return (
@@ -147,9 +159,11 @@ function SettingButton(props) {
 
 function Message(props) {
     const [msg, setMsg] = useState(null);
+    const msgFlg = useSelector((state) => state.msgFlg);
+    const reactMsg = useSelector((state) => state.reactMsg);
 
     function selectMsg() {
-        if (msg === null && props.msgFlg) {
+        if (msg === null && msgFlg) {
             const date = new Date();
             const msgList = date.getHours() >= 12 ? message.PM : message.AM;
             setMsg(msgList[Math.floor(Math.random() * msgList.length)]);
@@ -167,7 +181,7 @@ function Message(props) {
     });
 
     let msgPadd = msg === null ? 'rgba(222, 219, 202, 0.0)' : 'rgba(222, 219, 202, 0.85)';
-    let rmsgPadd = props.reactMsg === null ? 'rgba(222, 219, 202, 0.0)' : 'rgba(222, 219, 202, 0.85)';
+    let rmsgPadd = reactMsg === null ? 'rgba(222, 219, 202, 0.0)' : 'rgba(222, 219, 202, 0.85)';
 
     return (
         <React.Fragment>
@@ -175,96 +189,40 @@ function Message(props) {
                 <label>{msg}</label>
             </div>
             <div className="react-message" style={{ backgroundColor: rmsgPadd }}>
-                <label>{props.reactMsg}</label>
+                <label>{reactMsg}</label>
             </div>
         </React.Fragment>
     );
 }
 
 
-class AppClock extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dateHistory: null,
-            hour24: true,
-            msgFlg: true,
-            pictFlag: 1,
-            reactMsg: null,
-            apptimeStyle: { backgroundColor: "#8490c8" }
-        };
-    }
+function AppClock() {
+    const apptimeStyle = useSelector((state) => state.apptimeStyle);
 
-    dateClick(d) {
-        this.setState({
-            dateHistory: d,
-            pictFlag: this.state.pictFlag ^ 1,
-        });
-    }
+    // function changeApptimeStyle(bgColor) {
+    //     let chgStyle = {
+    //         backgroundColor: bgColor
+    //     }
+    //     dispatch(Actions.setApptimeStyle(chgStyle));
+    // }
 
-    change24Hour(f) {
-        this.setState({
-            hour24: f,
-        });
-    }
-
-    changeMessageFlag(f) {
-        this.setState({
-            msgFlg: f,
-        });
-    }
-
-    reactMessage(m) {
-        this.setState({
-            reactMsg: m,
-        });
-    }
-
-    changeApptimeStyle(bgColor) {
-        let chgStyle = {
-            backgroundColor: bgColor
-        }
-
-        this.setState({
-            apptimeStyle: chgStyle
-        })
-    }
-
-    render() {
-        return (
-            <div className="app-main">
-                <div className="app-time" style={this.state.apptimeStyle}>
-                    <PictureChange
-                        flg={this.state.pictFlag}
-                        setMsg={(m) => this.reactMessage(m)}
-                        msgFlg={this.state.msgFlg}
-                    />
-                    <div className="app-clock">
-                        <Clock
-                            onClick={(d) => this.dateClick(d)}
-                            hour24={this.state.hour24}
-                        />
-                        <DateLabel
-                            date={this.state.dateHistory}
-                        />
-                    </div>
-                    <div className="app-message">
-                        <Message
-                            reactMsg={this.state.reactMsg}
-                            msgFlg={this.state.msgFlg}
-                        />
-                    </div>
-                    <div className="app-button">
-                        <SettingButton
-                            chg24Hour={(f) => this.change24Hour(f)}
-                            chgMsgFlg={(f) => this.changeMessageFlag(f)}
-                        />
-                    </div>
+    return (
+        <div className="app-main">
+            <div className="app-time" style={apptimeStyle}>
+                <PictureChange />
+                <div className="app-clock">
+                    <Clock />
+                    <DateLabel />
+                </div>
+                <div className="app-message">
+                    <Message />
+                </div>
+                <div className="app-button">
+                    <SettingButton />
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 }
-
 
 export default AppClock;
